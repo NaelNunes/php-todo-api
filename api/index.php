@@ -11,7 +11,21 @@ $pdo = new PDO(
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === "GET") {
-    $stmt = $pdo->query("SELECT *FROM tasks");
+
+    $id = $_GET['id'] ?? null;
+
+    if ($id) {
+        $stmt = $pdo->prepare("SELECT * FROM tasks WHERE id = ?");
+        $stmt->execute([$id]);
+        $task = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        echo json_encode($task ?: ["message" => "Task nao encontrada"]); 
+    } else {
+        $stmt = $pdo->query("SELECT * FROM tasks");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC)); 
+    }
+
+    
     $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($tasks);
