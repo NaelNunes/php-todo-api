@@ -16,3 +16,19 @@ if ($method === "GET") {
 
     echo json_encode($tasks);
 }
+
+if ($method === "POST") {
+    
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $stmt = $pdo->prepare(
+        "INSERT INTO tasks (titulo, descricao) VALUES (?, ?)"
+    );
+
+    $stmt->execute([
+        $data['titulo'],
+        $data['descricao']
+    ]);
+
+    echo json_encode(["message" => "Task criada"]);
+}
