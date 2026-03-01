@@ -46,3 +46,49 @@ if ($method === "POST") {
 
     echo json_encode(["message" => "Task criada"]);
 }
+
+if ($method === "DELETE") {
+
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        echo json_encode(["message" => "ID obrigatório"]);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("DELETE FROM tasks WHERE id = ?");
+    $stmt->execute([$id]);
+    echo json_encode(["message" => "Task deletada"]);
+}
+
+if ($method === "PUT") {
+
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        echo json_encode(["message" => "ID obrigatorio"]);
+        exit;
+    }
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data['titulo'], $data['descricao'], $data['concluida'])) {
+        echo json_encode(["message" => "Dados incompletos"]);
+        exit;
+    }
+
+    $stmt = $pdo->prepare(
+        "UPDATE tasks 
+         SET titulo = ?, descricao = ?, concluida = ?
+         WHERE id = ?"
+    );
+
+    $stmt->execute([
+        $data['titulo'],
+        $data['descricao'],
+        $data['concluida'],
+        $id
+    ]);
+
+    echo json_encode(["message" => "Task atualizada"]);
+}
